@@ -16,7 +16,7 @@ Adafruit_Trellis    T[4];
 Adafruit_TrellisSet trellis(&T[0], &T[1], &T[2], &T[3]);
 const uint8_t       addr[] = { 0x70, 0x71, 0x72, 0x73 };
 
-boolean       grid[8][8];                  // Sequencer state
+uint8_t       grid[8];                     // Sequencer state
 uint8_t       heart        = 0,            // Heartbeat LED counter
               col          = 0;            // Current column
 unsigned int  bpm          = 240;          // Tempo
@@ -31,6 +31,7 @@ unsigned long beatInterval = 60000L / bpm, // ms/beat
 // access, use xy=pgm_read_byte(&i2xy[i]) or i=pgm_read_byte(&xy2i[x][y]).
 // The note[] and channel[] tables are the MIDI note and channel numbers
 // for to each row (top to bottom); they're specific to this application.
+// bitmask[] is for efficient reading/writing bits to the grid[] array.
 static const uint8_t PROGMEM
   i2xy[] = { // Remap 8x8 TrellisSet button index to column/row
     0x00, 0x10, 0x20, 0x30, 0x01, 0x11, 0x21, 0x31,
@@ -50,8 +51,9 @@ static const uint8_t PROGMEM
     { 17, 21, 25, 29, 49, 53, 57, 61 },
     { 18, 22, 26, 30, 50, 54, 58, 62 },
     { 19, 23, 27, 31, 51, 55, 59, 63 } },
-  note[8]    = { 72, 71, 69, 67, 65, 64, 62, 60 },
-  channel[8] = {  1,  1,  1,  1,  1,  1,  1,  1 };
+  note[8]    = {  72, 71, 69, 67, 65, 64, 62, 60 },
+  channel[8] = {   1,  1,  1,  1,  1,  1,  1,  1 },
+  bitmask[8] = { 128, 64, 32, 16,  8,  4,  2,  1 };
 
 void setup() {
   pinMode(LED, OUTPUT);
@@ -65,19 +67,21 @@ void setup() {
 #endif
   trellis.clear();
   trellis.writeDisplay();
-  memset(grid, false, sizeof(grid));
+  memset(grid, 0, sizeof(grid));
 }
 
 // Turn on (or off) one column of the display
 uint8_t line(uint8_t x, boolean set) {
+  uint8_t mask = pgm_read_byte(&bitmask[x]);
   for(uint8_t y=0; y<8; y++) {
     uint8_t i = pgm_read_byte(&xy2i[x][y]);
-    if(set || grid[x][y]) trellis.setLED(i);
-    else                  trellis.clrLED(i);
+    if(set || (grid[y] & mask)) trellis.setLED(i);
+    else                        trellis.clrLED(i);
   }
 }
 
 void loop() {
+  uint8_t       mask;
   boolean       refresh = false;
   unsigned long t       = millis();
 
@@ -87,14 +91,15 @@ void loop() {
         uint8_t xy = pgm_read_byte(&i2xy[i]),
                 x  = xy >> 4,
                 y  = xy & 0x0F;
+        mask = pgm_read_byte(&bitmask[x]);
         if(trellis.justPressed(i)) {
-          if(grid[x][y]) { // Already set?  Turn off...
-            grid[x][y] = false;
+          if(grid[y] & mask) { // Already set?  Turn off...
+            grid[y] &= ~mask;
             trellis.clrLED(i);
             usbMIDI.sendNoteOff(pgm_read_byte(&note[y]),
               127, pgm_read_byte(&channel[y]));
           } else {         // Turn on
-            grid[x][y] = true;
+            grid[y] |= mask;
             trellis.setLED(i);
           }
           refresh = true;
@@ -108,8 +113,9 @@ void loop() {
   if((t - prevBeatTime) >= beatInterval) { // Next beat?
     // Turn off old column
     line(col, false);
+    mask = pgm_read_byte(&bitmask[col]);
     for(uint8_t row=0; row<8; row++) {
-      if(grid[col][row]) {
+      if(grid[row] & mask) {
         usbMIDI.sendNoteOff(pgm_read_byte(&note[row]), 127,
           pgm_read_byte(&channel[row]));
       }
@@ -118,8 +124,9 @@ void loop() {
     if(++col > 7) col = 0;
     // Turn on new column
     line(col, true);
+    mask = pgm_read_byte(&bitmask[col]);
     for(uint8_t row=0; row<8; row++) {
-      if(grid[col][row]) {
+      if(grid[row] & mask) {
         usbMIDI.sendNoteOn(pgm_read_byte(&note[row]), 127,
           pgm_read_byte(&channel[row]));
       }
