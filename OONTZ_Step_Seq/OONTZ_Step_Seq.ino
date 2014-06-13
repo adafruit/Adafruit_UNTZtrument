@@ -71,7 +71,7 @@ void setup() {
 }
 
 // Turn on (or off) one column of the display
-uint8_t line(uint8_t x, boolean set) {
+void line(uint8_t x, boolean set) {
   uint8_t mask = pgm_read_byte(&bitmask[x]);
   for(uint8_t y=0; y<8; y++) {
     uint8_t i = pgm_read_byte(&xy2i[x][y]);
