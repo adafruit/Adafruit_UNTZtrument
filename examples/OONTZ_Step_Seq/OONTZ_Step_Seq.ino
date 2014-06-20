@@ -8,21 +8,24 @@
 
 #define LED 13 // Pin for heartbeat LED (shows code is working)
 
-// The OONTZ config for this example is comprised of four Trellises in
-// a 2x2 arrangement (8x8 buttons total).  addr[] is the I2C address
-// of the upper left, upper right, lower left and lower right matrices,
-// respectively, assuming an upright orientation, i.e. labels on board
-// are in the normal reading direction.
-Adafruit_Trellis    T[4];
-OONTZ               oontz(&T[0], &T[1], &T[2], &T[3]);
-const uint8_t       addr[] = { 0x70, 0x71, 0x72, 0x73 };
-// For a 16x8 OONTZ, we'd instead use something like:
-// Adafruit_Trellis T[8];
-// OONTZ            oontz(&T[0], &T[1], &T[2], &T[3],
-//                        &T[4], &T[5], &T[6], &T[7]);
-// const uint8_t    addr[] = { 0x70, 0x71, 0x72, 0x73,
-//                             0x74, 0x75, 0x76, 0x77 };
-// The oontz.begin() later then requires the extra 4 addr's.
+#ifndef HELLA
+// A standard OONTZ has four Trellises in a 2x2 arrangement
+// (8x8 buttons total).  addr[] is the I2C address of the upper left,
+// upper right, lower left and lower right matrices, respectively,
+// assuming an upright orientation, i.e. labels on board are in the
+// normal reading direction.
+Adafruit_Trellis T[4];
+OONTZ            oontz(&T[0], &T[1], &T[2], &T[3]);
+const uint8_t    addr[] = { 0x70, 0x71,
+                            0x72, 0x73 };
+#else
+// A HELLA OONTZ has eight Trellis boards...
+Adafruit_Trellis T[8];
+OONTZ            oontz(&T[0], &T[1], &T[2], &T[3],
+                       &T[4], &T[5], &T[6], &T[7]);
+const uint8_t    addr[] = { 0x70, 0x71, 0x72, 0x73,
+                            0x74, 0x75, 0x76, 0x77 };
+#endif // HELLA
 
 #define WIDTH     ((sizeof(T) / sizeof(T[0])) * 2)
 #define N_BUTTONS ((sizeof(T) / sizeof(T[0])) * 16)
@@ -45,7 +48,12 @@ static const uint8_t PROGMEM
 
 void setup() {
   pinMode(LED, OUTPUT);
+#ifndef HELLA
   oontz.begin(addr[0], addr[1], addr[2], addr[3]);
+#else
+  oontz.begin(addr[0], addr[1], addr[2], addr[3],
+              addr[4], addr[5], addr[6], addr[7]);
+#endif // HELLA
 #ifdef __AVR__
   // Default Arduino I2C speed is 100 KHz, but the HT16K33 supports
   // 400 KHz.  We can force this for faster read & refresh, but may
