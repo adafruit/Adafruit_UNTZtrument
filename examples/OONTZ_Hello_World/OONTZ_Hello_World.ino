@@ -31,7 +31,7 @@ const uint8_t    addr[] = { 0x70, 0x71, 0x72, 0x73 };
 // correspond to an octave or anything.
 #define WIDTH     ((sizeof(T) / sizeof(T[0])) * 2)
 #define N_BUTTONS ((sizeof(T) / sizeof(T[0])) * 16)
-#define LOWNOTE   ((127 - N_BUTTONS) / 2)
+#define LOWNOTE   ((128 - N_BUTTONS) / 2)
 
 uint8_t       heart        = 0;  // Heartbeat LED counter
 unsigned long prevReadTime = 0L; // Keypad polling timer
