@@ -30,6 +30,10 @@ const uint8_t    addr[] = { 0x70, 0x71, 0x72, 0x73,
 #define WIDTH     ((sizeof(T) / sizeof(T[0])) * 2)
 #define N_BUTTONS ((sizeof(T) / sizeof(T[0])) * 16)
 
+// Encoder on pins 4,5 sets tempo.  Optional, not present in
+// standard OONTZ, but won't affect things if unconnected.
+enc e(4, 5);
+
 uint8_t       grid[WIDTH];                 // Sequencer state
 uint8_t       heart        = 0,            // Heartbeat LED counter
               col          = WIDTH-1;      // Current column
@@ -64,6 +68,8 @@ void setup() {
   oontz.clear();
   oontz.writeDisplay();
   memset(grid, 0, sizeof(grid));
+  e.setBounds(60 * 4, 480 * 4 + 3); // Set tempo limits
+  e.setValue(bpm * 4);              // *4's for encoder detents
 }
 
 // Turn on (or off) one column of the display
@@ -79,6 +85,8 @@ void loop() {
   uint8_t       mask;
   boolean       refresh = false;
   unsigned long t       = millis();
+
+  enc::poll(); // Read encoder(s)
 
   if((t - prevReadTime) >= 20L) { // 20ms = min Trellis poll time
     if(oontz.readSwitches()) {    // Button state change?
@@ -125,6 +133,8 @@ void loop() {
     }
     prevBeatTime = t;
     refresh      = true;
+    bpm          = e.getValue() / 4; // Div for encoder detents
+    beatInterval = 60000L / bpm;
   }
 
   if(refresh) oontz.writeDisplay();
