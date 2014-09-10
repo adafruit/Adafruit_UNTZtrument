@@ -1,9 +1,9 @@
 /*------------------------------------------------------------------------
-  Arduino library for the Adafruit OONTZ - a Trellis button controller.
+  Arduino library for Adafruit UNTZtrument - a Trellis button controller.
 
-  The OONTZ class is just a slight wrapper around a TrellisSet (see the
-  Adafruit_Trellis library for details), adding X/Y-to-button-index and
-  button-index-to-X/Y functions.
+  The Adafruit_UNTZtrument class is just a slight wrapper around a
+  TrellisSet (see the Adafruit_Trellis library for details), adding
+  X/Y-to-button-index and button-index-to-X/Y functions.
 
   The enc class provides basic encoder support.  It's polling-based
   (rather than interrupt-based) so it can work with any pins and any
@@ -20,14 +20,15 @@
   from Adafruit!
   ------------------------------------------------------------------------*/
 
-#include "Adafruit_OONTZ.h"
+#include "Adafruit_UNTZtrument.h"
 
-// OONTZ/TRELLIS STUFF -----------------------------------------------------
+// UNTZTRUMENT/TRELLIS STUFF -----------------------------------------------
 
-OONTZ::OONTZ(Adafruit_Trellis *matrix0, Adafruit_Trellis *matrix1,
-             Adafruit_Trellis *matrix2, Adafruit_Trellis *matrix3,
-             Adafruit_Trellis *matrix4, Adafruit_Trellis *matrix5,
-             Adafruit_Trellis *matrix6, Adafruit_Trellis *matrix7) :
+Adafruit_UNTZtrument::Adafruit_UNTZtrument(
+  Adafruit_Trellis *matrix0, Adafruit_Trellis *matrix1,
+  Adafruit_Trellis *matrix2, Adafruit_Trellis *matrix3,
+  Adafruit_Trellis *matrix4, Adafruit_Trellis *matrix5,
+  Adafruit_Trellis *matrix6, Adafruit_Trellis *matrix7) :
   Adafruit_TrellisSet(matrix0, matrix1, matrix2, matrix3,
                       matrix4, matrix5, matrix6, matrix7) {
 	size = matrix4 ? 128 : 64;
@@ -80,7 +81,7 @@ static const uint8_t PROGMEM
     { 72, 73, 74, 75, 88, 89, 90, 91,104,105,106,107,120,121,122,123 },
     { 76, 77, 78, 79, 92, 93, 94, 95,108,109,110,111,124,125,126,127 } };
 
-uint8_t OONTZ::xy2i(uint8_t x, uint8_t y) {
+uint8_t Adafruit_UNTZtrument::xy2i(uint8_t x, uint8_t y) {
 	if(y > 7) return 255;
 	if(size == 64) {
 		if(x > 7) return 255;
@@ -91,7 +92,7 @@ uint8_t OONTZ::xy2i(uint8_t x, uint8_t y) {
 	}
 }
 
-void OONTZ::i2xy(uint8_t i, uint8_t *x, uint8_t *y) {
+void Adafruit_UNTZtrument::i2xy(uint8_t i, uint8_t *x, uint8_t *y) {
 	if(i > size) {
 		*x = *y = 255;
 		return;

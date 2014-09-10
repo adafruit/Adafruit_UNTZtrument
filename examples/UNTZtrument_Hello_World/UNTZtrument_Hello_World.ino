@@ -1,32 +1,32 @@
-// Super-basic OONTZ MIDI example.  Maps OONTZ buttons to MIDI note
+// Super-basic UNTZtrument MIDI example.  Maps buttons to MIDI note
 // on/off events; this is NOT a sequencer or anything fancy.
 // Requires an Arduino Leonardo w/TeeOnArdu config (or a PJRC Teensy),
 // software on host computer for synth or to route to other devices.
 
 #include <Wire.h>
 #include <Adafruit_Trellis.h>
-#include <Adafruit_OONTZ.h>
+#include <Adafruit_UNTZtrument.h>
 
 #define LED     13 // Pin for heartbeat LED (shows code is working)
 #define CHANNEL 1  // MIDI channel number
 
 #ifndef HELLA
-// A standard OONTZ has four Trellises in a 2x2 arrangement
+// A standard UNTZtrument has four Trellises in a 2x2 arrangement
 // (8x8 buttons total).  addr[] is the I2C address of the upper left,
 // upper right, lower left and lower right matrices, respectively,
 // assuming an upright orientation, i.e. labels on board are in the
 // normal reading direction.
-Adafruit_Trellis T[4];
-OONTZ            oontz(&T[0], &T[1], &T[2], &T[3]);
-const uint8_t    addr[] = { 0x70, 0x71,
-                            0x72, 0x73 };
+Adafruit_Trellis     T[4];
+Adafruit_UNTZtrument oontz(&T[0], &T[1], &T[2], &T[3]);
+const uint8_t        addr[] = { 0x70, 0x71,
+                                0x72, 0x73 };
 #else
-// A HELLA OONTZ has eight Trellis boards...
-Adafruit_Trellis T[8];
-OONTZ            oontz(&T[0], &T[1], &T[2], &T[3],
-                       &T[4], &T[5], &T[6], &T[7]);
-const uint8_t    addr[] = { 0x70, 0x71, 0x72, 0x73,
-                            0x74, 0x75, 0x76, 0x77 };
+// A HELLA UNTZtrument has eight Trellis boards...
+Adafruit_Trellis     T[8];
+Adafruit_UNTZtrument oontz(&T[0], &T[1], &T[2], &T[3],
+                           &T[4], &T[5], &T[6], &T[7]);
+const uint8_t        addr[] = { 0x70, 0x71, 0x72, 0x73,
+                                0x74, 0x75, 0x76, 0x77 };
 #endif // HELLA
 
 // For this example, MIDI note numbers are simply centered based on

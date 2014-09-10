@@ -1,21 +1,22 @@
-#ifndef _OONTZ_H_
-#define _OONTZ_H_
+#ifndef _UNTZTRUMENT_H_
+#define _UNTZTRUMENT_H_
 
 #include <Arduino.h>
 #include <Adafruit_Trellis.h>
 
-// OONTZ/TRELLIS STUFF -----------------------------------------------------
+// UNTZTRUMENT/TRELLIS STUFF -----------------------------------------------
 
-class OONTZ : public Adafruit_TrellisSet {
+class Adafruit_UNTZtrument : public Adafruit_TrellisSet {
  public:
-  OONTZ(Adafruit_Trellis *matrix0,
-        Adafruit_Trellis *matrix1=0,
-        Adafruit_Trellis *matrix2=0,
-        Adafruit_Trellis *matrix3=0,
-        Adafruit_Trellis *matrix4=0,
-        Adafruit_Trellis *matrix5=0,
-        Adafruit_Trellis *matrix6=0,
-        Adafruit_Trellis *matrix7=0);
+  Adafruit_UNTZtrument(
+    Adafruit_Trellis *matrix0,
+    Adafruit_Trellis *matrix1=0,
+    Adafruit_Trellis *matrix2=0,
+    Adafruit_Trellis *matrix3=0,
+    Adafruit_Trellis *matrix4=0,
+    Adafruit_Trellis *matrix5=0,
+    Adafruit_Trellis *matrix6=0,
+    Adafruit_Trellis *matrix7=0);
 
   uint8_t xy2i(uint8_t x, uint8_t y);
   void    i2xy(uint8_t i, uint8_t *x, uint8_t *y);
@@ -56,4 +57,4 @@ class enc {
   enc              *next;               // Next in linked list
 };
 
-#endif // _OONTZ_H_
+#endif // _UNTZTRUMENT_H_
