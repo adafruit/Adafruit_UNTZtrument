@@ -17,14 +17,14 @@
 // assuming an upright orientation, i.e. labels on board are in the
 // normal reading direction.
 Adafruit_Trellis     T[4];
-Adafruit_UNTZtrument oontz(&T[0], &T[1], &T[2], &T[3]);
+Adafruit_UNTZtrument untztrument(&T[0], &T[1], &T[2], &T[3]);
 const uint8_t        addr[] = { 0x70, 0x71,
                                 0x72, 0x73 };
 #else
 // A HELLA UNTZtrument has eight Trellis boards...
 Adafruit_Trellis     T[8];
-Adafruit_UNTZtrument oontz(&T[0], &T[1], &T[2], &T[3],
-                           &T[4], &T[5], &T[6], &T[7]);
+Adafruit_UNTZtrument untztrument(&T[0], &T[1], &T[2], &T[3],
+                                 &T[4], &T[5], &T[6], &T[7]);
 const uint8_t        addr[] = { 0x70, 0x71, 0x72, 0x73,
                                 0x74, 0x75, 0x76, 0x77 };
 #endif // HELLA
@@ -42,10 +42,10 @@ unsigned long prevReadTime = 0L; // Keypad polling timer
 void setup() {
   pinMode(LED, OUTPUT);
 #ifndef HELLA
-  oontz.begin(addr[0], addr[1], addr[2], addr[3]);
+  untztrument.begin(addr[0], addr[1], addr[2], addr[3]);
 #else
-  oontz.begin(addr[0], addr[1], addr[2], addr[3],
-              addr[4], addr[5], addr[6], addr[7]);
+  untztrument.begin(addr[0], addr[1], addr[2], addr[3],
+                    addr[4], addr[5], addr[6], addr[7]);
 #endif // HELLA
 #ifdef __AVR__
   // Default Arduino I2C speed is 100 KHz, but the HT16K33 supports
@@ -54,28 +54,28 @@ void setup() {
   // comment this out, or save & restore value as needed.
   TWBR = 12;
 #endif
-  oontz.clear();
-  oontz.writeDisplay();
+  untztrument.clear();
+  untztrument.writeDisplay();
 }
 
 void loop() {
   unsigned long t = millis();
   if((t - prevReadTime) >= 20L) { // 20ms = min Trellis poll time
-    if(oontz.readSwitches()) {  // Button state change?
+    if(untztrument.readSwitches()) { // Button state change?
       for(uint8_t i=0; i<N_BUTTONS; i++) { // For each button...
         // Get column/row for button, convert to MIDI note number
         uint8_t x, y, note;
-        oontz.i2xy(i, &x, &y);
+        untztrument.i2xy(i, &x, &y);
         note = LOWNOTE + y * WIDTH + x;
-        if(oontz.justPressed(i)) {
+        if(untztrument.justPressed(i)) {
           usbMIDI.sendNoteOn(note, 127, CHANNEL);
-          oontz.setLED(i);
-        } else if(oontz.justReleased(i)) {
+          untztrument.setLED(i);
+        } else if(untztrument.justReleased(i)) {
           usbMIDI.sendNoteOff(note, 0, CHANNEL);
-          oontz.clrLED(i);
+          untztrument.clrLED(i);
         }
       }
-      oontz.writeDisplay();
+      untztrument.writeDisplay();
     }
     prevReadTime = t;
     digitalWrite(LED, ++heart & 32); // Blink = alive

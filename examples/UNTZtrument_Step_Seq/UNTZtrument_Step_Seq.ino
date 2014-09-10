@@ -15,13 +15,13 @@
 // assuming an upright orientation, i.e. labels on board are in the
 // normal reading direction.
 Adafruit_Trellis     T[4];
-Adafruit_UNTZtrument oontz(&T[0], &T[1], &T[2], &T[3]);
+Adafruit_UNTZtrument untztrument(&T[0], &T[1], &T[2], &T[3]);
 const uint8_t        addr[] = { 0x70, 0x71, 0x72, 0x73 };
 #else
 // A HELLA UNTZtrument has eight Trellis boards...
 Adafruit_Trellis     T[8];
-Adafruit_UNTZtrument oontz(&T[0], &T[1], &T[2], &T[3],
-                           &T[4], &T[5], &T[6], &T[7]);
+Adafruit_UNTZtrument untztrument(&T[0], &T[1], &T[2], &T[3],
+                                 &T[4], &T[5], &T[6], &T[7]);
 const uint8_t        addr[] = { 0x70, 0x71, 0x72, 0x73,
                                 0x74, 0x75, 0x76, 0x77 };
 #endif // HELLA
@@ -52,10 +52,10 @@ static const uint8_t PROGMEM
 void setup() {
   pinMode(LED, OUTPUT);
 #ifndef HELLA
-  oontz.begin(addr[0], addr[1], addr[2], addr[3]);
+  untztrument.begin(addr[0], addr[1], addr[2], addr[3]);
 #else
-  oontz.begin(addr[0], addr[1], addr[2], addr[3],
-              addr[4], addr[5], addr[6], addr[7]);
+  untztrument.begin(addr[0], addr[1], addr[2], addr[3],
+                    addr[4], addr[5], addr[6], addr[7]);
 #endif // HELLA
 #ifdef __AVR__
   // Default Arduino I2C speed is 100 KHz, but the HT16K33 supports
@@ -64,8 +64,8 @@ void setup() {
   // comment this out, or save & restore value as needed.
   TWBR = 12;
 #endif
-  oontz.clear();
-  oontz.writeDisplay();
+  untztrument.clear();
+  untztrument.writeDisplay();
   memset(grid, 0, sizeof(grid));
   e.setBounds(60 * 4, 480 * 4 + 3); // Set tempo limits
   e.setValue(bpm * 4);              // *4's for encoder detents
@@ -74,9 +74,9 @@ void setup() {
 // Turn on (or off) one column of the display
 void line(uint8_t x, boolean set) {
   for(uint8_t mask=1, y=0; y<8; y++, mask <<= 1) {
-    uint8_t i = oontz.xy2i(x, y);
-    if(set || (grid[x] & mask)) oontz.setLED(i);
-    else                        oontz.clrLED(i);
+    uint8_t i = untztrument.xy2i(x, y);
+    if(set || (grid[x] & mask)) untztrument.setLED(i);
+    else                        untztrument.clrLED(i);
   }
 }
 
@@ -88,20 +88,20 @@ void loop() {
   enc::poll(); // Read encoder(s)
 
   if((t - prevReadTime) >= 20L) { // 20ms = min Trellis poll time
-    if(oontz.readSwitches()) {    // Button state change?
+    if(untztrument.readSwitches()) { // Button state change?
       for(uint8_t i=0; i<N_BUTTONS; i++) { // For each button...
         uint8_t x, y;
-        oontz.i2xy(i, &x, &y);
+        untztrument.i2xy(i, &x, &y);
         mask = pgm_read_byte(&bitmask[y]);
-        if(oontz.justPressed(i)) {
+        if(untztrument.justPressed(i)) {
           if(grid[x] & mask) { // Already set?  Turn off...
             grid[x] &= ~mask;
-            oontz.clrLED(i);
+            untztrument.clrLED(i);
             usbMIDI.sendNoteOff(pgm_read_byte(&note[y]),
               127, pgm_read_byte(&channel[y]));
           } else { // Turn on
             grid[x] |= mask;
-            oontz.setLED(i);
+            untztrument.setLED(i);
           }
           refresh = true;
         }
@@ -136,7 +136,7 @@ void loop() {
     beatInterval = 60000L / bpm;
   }
 
-  if(refresh) oontz.writeDisplay();
+  if(refresh) untztrument.writeDisplay();
 
   while(usbMIDI.read()); // Discard incoming MIDI messages
 }
