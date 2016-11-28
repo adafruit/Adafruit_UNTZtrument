@@ -6,6 +6,7 @@
 #include <Wire.h>
 #include <Adafruit_Trellis.h>
 #include <Adafruit_UNTZtrument.h>
+#include "MIDIUSB.h"
 
 #define LED     13 // Pin for heartbeat LED (shows code is working)
 #define CHANNEL 1  // MIDI channel number
@@ -58,6 +59,18 @@ void setup() {
   untztrument.writeDisplay();
 }
 
+void noteOn(byte channel, byte pitch, byte velocity) {
+  midiEventPacket_t noteOn = {0x09, 0x90 | channel, pitch, velocity};
+  MidiUSB.sendMIDI(noteOn);
+  MidiUSB.flush();
+}
+
+void noteOff(byte channel, byte pitch, byte velocity) {
+  midiEventPacket_t noteOff = {0x08, 0x80 | channel, pitch, velocity};
+  MidiUSB.sendMIDI(noteOff);
+  MidiUSB.flush();
+}
+
 void loop() {
   unsigned long t = millis();
   if((t - prevReadTime) >= 20L) { // 20ms = min Trellis poll time
@@ -68,10 +81,10 @@ void loop() {
         untztrument.i2xy(i, &x, &y);
         note = LOWNOTE + y * WIDTH + x;
         if(untztrument.justPressed(i)) {
-          usbMIDI.sendNoteOn(note, 127, CHANNEL);
+          noteOn(CHANNEL, note, 127);
           untztrument.setLED(i);
         } else if(untztrument.justReleased(i)) {
-          usbMIDI.sendNoteOff(note, 0, CHANNEL);
+          noteOff(CHANNEL, note, 0);
           untztrument.clrLED(i);
         }
       }
@@ -80,24 +93,4 @@ void loop() {
     prevReadTime = t;
     digitalWrite(LED, ++heart & 32); // Blink = alive
   }
-  while(usbMIDI.read()); // Discard incoming MIDI messages
 }
-
-/* Here's the set of MIDI functions for making your own projects:
-
-  usbMIDI.sendNoteOn(note, velocity, channel)
-  usbMIDI.sendNoteOff(note, velocity, channel)
-  usbMIDI.sendPolyPressure(note, pressure, channel)
-  usbMIDI.sendControlChange(control, value, channel)
-  usbMIDI.sendProgramChange(program, channel)
-  usbMIDI.sendAfterTouch(pressure, channel)
-  usbMIDI.sendPitchBend(value, channel)
-  usbMIDI.sendSysEx(length, array)
-  usbMIDI.send_now()
-
-  Some info on MIDI note numbers can be found here:
-  http://www.phys.unsw.edu.au/jw/notes.html
-
-  Rather than MIDI, one could theoretically try using Serial to
-  create a sketch compatible with serialosc or monomeserial, but
-  those tools have proven notoriously unreliable thus far. */
