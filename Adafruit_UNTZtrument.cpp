@@ -112,10 +112,10 @@ static enc *list = NULL; // Encoder linked list
 
 // Constructor: pass two pin numbers and optional pullup enable flag
 // (use latter for open-drain encoders such as PEC11 - tie C pin to GND).
-enc::enc(uint8_t pinA, uint8_t pinB, boolean pullup) {
-	uint8_t mode = pullup ? INPUT_PULLUP : INPUT;
-	pinMode(pinA, mode);
-	pinMode(pinB, mode);
+enc::enc(uint8_t a, uint8_t b, boolean p) {
+	pinA     = a;
+	pinB     = b;
+	pullup   = p;
         pinRegA  = portInputRegister(digitalPinToPort(pinA));
         pinRegB  = portInputRegister(digitalPinToPort(pinB));
 	pinMaskA = digitalPinToBitMask(pinA);
@@ -131,6 +131,15 @@ enc::enc(uint8_t pinA, uint8_t pinB, boolean pullup) {
 	state    = 0;
 	if(*pinRegA & pinMaskA) state |= 2; // Read initial
 	if(*pinRegB & pinMaskB) state |= 1; // pin state
+}
+
+// 2016-11-29 PhilB: added begin() function because SAMD doesn't
+// appreciate pinMode() calls in constructor -- each encoder must
+// be explicitly initialized in setup() now.
+void enc::begin(void) {
+	uint8_t mode = pullup ? INPUT_PULLUP : INPUT;
+	pinMode(pinA, mode);
+	pinMode(pinB, mode);
 }
 
 // Limit encoder range between two values (inclusive).
