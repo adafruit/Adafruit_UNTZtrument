@@ -36,11 +36,7 @@ typedef int16_t enc_t;
 class enc {
 
  public:
-#if defined(ARDUINO_ARCH_SAMD)
-  enc(uint32_t pinA, uint32_t pinB, boolean pullup = true);
-#else
   enc(uint8_t pinA, uint8_t pinB, boolean pullup = true);
-#endif
 
   void  setBounds(enc_t lo, enc_t hi, boolean wrap = false),
         setValue(enc_t v);
@@ -51,13 +47,8 @@ class enc {
   static void poll(void);
 
  private:
-#if defined(ARDUINO_ARCH_SAMD)
-  volatile uint32_t *pinRegA, *pinRegB;  // PIN registers for A & B
-  uint32_t           pinMaskA, pinMaskB; // Bitmask for A & B
-#else
   volatile uint8_t *pinRegA, *pinRegB;  // PIN registers for A & B
   uint8_t           pinMaskA, pinMaskB; // Bitmask for A & B
-#endif
   enc_t             value,              // Current value
                     min, max;           // Range bounds, if set
   uint8_t           flags,              // Limit (clip) vs wraparound
