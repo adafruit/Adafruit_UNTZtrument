@@ -38,14 +38,14 @@ class enc {
  public:
   enc(uint8_t a, uint8_t b, boolean p = true);
 
-  void  begin(void),
-        setBounds(enc_t lo, enc_t hi, boolean wrap = false),
+  void  setBounds(enc_t lo, enc_t hi, boolean wrap = false),
         setValue(enc_t v);
   enc_t getValue(void);
 
-  // Static member func is shared across all objects, not per-instance.
+  // Static member funcs are shared across all objects, not per-instance.
   // e.g. enc::poll() reads the lot, no need to call for each item.
-  static void poll(void);
+  static void begin(void),
+              poll(void);
 
  private:
   uint8_t            pinA, pinB;

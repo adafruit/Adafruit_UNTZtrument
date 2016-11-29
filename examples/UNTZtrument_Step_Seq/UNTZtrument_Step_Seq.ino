@@ -68,7 +68,7 @@ void setup() {
   untztrument.clear();
   untztrument.writeDisplay();
   memset(grid, 0, sizeof(grid));
-  e.begin();                        // Initialize encoder pins
+  enc::begin();                     // Initialize all encoder pins
   e.setBounds(60 * 4, 480 * 4 + 3); // Set tempo limits
   e.setValue(bpm * 4);              // *4's for encoder detents
 }

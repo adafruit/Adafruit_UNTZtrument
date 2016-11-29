@@ -134,12 +134,15 @@ enc::enc(uint8_t a, uint8_t b, boolean p) {
 }
 
 // 2016-11-29 PhilB: added begin() function because SAMD doesn't
-// appreciate pinMode() calls in constructor -- each encoder must
-// be explicitly initialized in setup() now.
+// appreciate pinMode() calls in constructor -- must explicitly call
+// enc::begin() in setup() now.
 void enc::begin(void) {
-	uint8_t mode = pullup ? INPUT_PULLUP : INPUT;
-	pinMode(pinA, mode);
-	pinMode(pinB, mode);
+	uint8_t mode;
+	for(enc *e = list; e; e = e->next) {
+		mode = e->pullup ? INPUT_PULLUP : INPUT;
+		pinMode(e->pinA, mode);
+		pinMode(e->pinB, mode);
+	}
 }
 
 // Limit encoder range between two values (inclusive).
