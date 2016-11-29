@@ -112,7 +112,11 @@ static enc *list = NULL; // Encoder linked list
 
 // Constructor: pass two pin numbers and optional pullup enable flag
 // (use latter for open-drain encoders such as PEC11 - tie C pin to GND).
+#if defined(ARDUINO_ARCH_SAMD)
+enc::enc(uint32_t pinA, uint32_t pinB, boolean pullup) {
+#else
 enc::enc(uint8_t pinA, uint8_t pinB, boolean pullup) {
+#endif
 	uint8_t mode = pullup ? INPUT_PULLUP : INPUT;
 	pinMode(pinA, mode);
 	pinMode(pinB, mode);
