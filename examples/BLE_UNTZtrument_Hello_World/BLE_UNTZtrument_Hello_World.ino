@@ -105,12 +105,15 @@ void setup() {
   untztrument.begin(addr[0], addr[1], addr[2], addr[3],
                     addr[4], addr[5], addr[6], addr[7]);
 #endif // HELLA
-#ifdef __AVR__
   // Default Arduino I2C speed is 100 KHz, but the HT16K33 supports
   // 400 KHz.  We can force this for faster read & refresh, but may
   // break compatibility with other I2C devices...so be prepared to
   // comment this out, or save & restore value as needed.
-  TWBR = 12;
+#ifdef ARDUINO_ARCH_SAMD
+    Wire.setClock(400000L);
+#endif
+#ifdef __AVR__
+      TWBR = 12; // 400 KHz I2C on 16 MHz AVR
 #endif
   untztrument.clear();
   untztrument.writeDisplay();
