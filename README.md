@@ -8,7 +8,7 @@ Arduino library for:
 ## Tutorials
 
 * [USB MIDI](https://learn.adafruit.com/untztrument-trellis-midi-instrument)
-* [Bluetooth LE MIDI](https://learn.adafruit.com/bluetooth-untztrument-midi)
+* [Bluetooth LE MIDI](https://learn.adafruit.com/wireless-untztrument-using-ble-midi)
 
 ## Compatible Microcontrollers
 
