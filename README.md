@@ -1,4 +1,4 @@
-# Adafruit UNTZtrument Arduino Library
+# Adafruit UNTZtrument Arduino Library [![Build Status](https://github.com/adafruit/Adafruit_UNTZtrument/workflows/Arduino%20Library%20CI/badge.svg)](https://github.com/adafruit/Adafruit_UNTZtrument/actions)
 
 Arduino library for:
 
